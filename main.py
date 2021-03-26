@@ -1,1 +1,10 @@
-print('hello')
+import discord
+from discord.ext import commands
+
+bot = commands.Bot(command_prefix='[')
+
+@bot.event
+async def on_ready():
+    print(">> bot is online <<")
+
+bot.run('ODI1MDM2NjU5OTQ2NTUzMzg1.YF4FRA.7ImBJStIw6IgIJqv112qRKQ6rJY')
