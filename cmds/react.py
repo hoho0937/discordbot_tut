@@ -95,7 +95,7 @@ class React(Cog_Extension):
         bbmts.close()
 
         name = str(ctx.author)
-        await ctx.send(F'**{ctx.author}** 你的珍奶有 {bbmt_data[name]} 杯')
+        await ctx.send(F'**{ctx.author}** :u5272: 你的珍奶有 {bbmt_data[name]} 杯')
 
     @commands.command()
     async def 賭骰子(self,ctx,number,bet):
@@ -103,31 +103,34 @@ class React(Cog_Extension):
             bbmt_data = json.load(bbmts)
         bbmts.close()
 
-        number = int(number)
-        if int(number) > int(bbmt_data[str(ctx.author)]):
-            await ctx.send(F'**{ctx.author}** 你珍奶沒了，滾')
+        if bbmt_data.__contains__(str(ctx.author)) == False:
+            await ctx.send(F'**{ctx.author}** 你還沒買珍奶，滾')
         else:
-            rand = random.randint(1, 6)
-            bubtea = int(bbmt_data[str(ctx.author)])-number
-            pic = discord.File(jdata['dice'][rand-1])
-            await ctx.send(file = pic)
-            if bet == '單' and rand%2 == 1:
-                new_bubtea = int(bubtea + (number * 2))
-                await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
-            elif bet == '雙' and rand%2 == 0:
-                new_bubtea = int(bubtea + (number * 2))
-                await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
-            elif bet == '小' and rand <= 3:
-                new_bubtea = int(bubtea + (number * 2))
-                await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
-            elif bet == '大' and rand >= 4:
-                new_bubtea = int(bubtea + (number * 2))
-                await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
+            number = int(number)
+            if int(number) > int(bbmt_data[str(ctx.author)]):
+                await ctx.send(F'**{ctx.author}** 你珍奶沒了，滾')
             else:
-                new_bubtea = int(bubtea)
-                await ctx.send(F'輸家，滾 ，你的珍奶變為 {new_bubtea}')
-            the_revised_dict = get_json_data(json_path, str(ctx.author), str(new_bubtea))
-            write_json_data(the_revised_dict)
+                rand = random.randint(1, 6)
+                bubtea = int(bbmt_data[str(ctx.author)])-number
+                pic = discord.File(jdata['dice'][rand-1])
+                await ctx.send(file = pic)
+                if bet == '單' and rand%2 == 1:
+                    new_bubtea = int(bubtea + (number * 2))
+                    await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
+                elif bet == '雙' and rand%2 == 0:
+                    new_bubtea = int(bubtea + (number * 2))
+                    await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
+                elif bet == '小' and rand <= 3:
+                    new_bubtea = int(bubtea + (number * 2))
+                    await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
+                elif bet == '大' and rand >= 4:
+                    new_bubtea = int(bubtea + (number * 2))
+                    await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
+                else:
+                    new_bubtea = int(bubtea)
+                    await ctx.send(F'輸家，滾 ，你的珍奶變為 {new_bubtea}')
+                the_revised_dict = get_json_data(json_path, str(ctx.author), str(new_bubtea))
+                write_json_data(the_revised_dict)
 
 
 
