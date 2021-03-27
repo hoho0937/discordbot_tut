@@ -98,6 +98,19 @@ class React(Cog_Extension):
         await ctx.send(F'**{ctx.author}** :u5272: 你的珍奶有 {bbmt_data[name]} 杯')
 
     @commands.command()
+    async def 拜託啦給我喝珍奶(self,ctx):
+        with open('BBMT.json', 'r', encoding='utf8') as bbmts:
+            bbmt_data = json.load(bbmts)
+        bbmts.close()
+
+        if(bbmt_data[str(ctx.author)] == "0"):
+            the_revised_dict = get_json_data(json_path, str(ctx.author), str(50))
+            write_json_data(the_revised_dict)
+            await ctx.send(F'好啦，再給你 50 杯')
+        else:
+            await ctx.send(F'滾')
+
+    @commands.command()
     async def 賭骰子(self,ctx,number,bet):
         with open('BBMT.json', 'r', encoding='utf8') as bbmts:
             bbmt_data = json.load(bbmts)
