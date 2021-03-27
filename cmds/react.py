@@ -28,7 +28,9 @@ def get_json_data(json_path,name,newbubtea):
 def add_json_data(json_path,name,newbubtea):
     with open(json_path, 'r', encoding='utf8') as f:
         params = json.load(f)
-    params[name] = newbubtea
+        params[name] = newbubtea
+
+        dict = params
 
     f.close()
     return dict
@@ -78,6 +80,15 @@ class React(Cog_Extension):
     @commands.command()
     async def 要喝什麼(self,ctx):
         rand = random.randint(0, len(drink)-1)
+        #rand = int(7)
+        if rand == 7:
+            with open('BBMT.json', 'r', encoding='utf8') as bbmts:
+                bbmt_data = json.load(bbmts)
+            bbmts.close()
+            name = str(ctx.author)
+            the_revised_dict = add_json_data(json_path, name, str(int(bbmt_data[name])+10))
+            write_json_data(the_revised_dict)
+
         await ctx.send(F'**{ctx.author}** 去喝  {drink[rand]}')
 
     @commands.command()
