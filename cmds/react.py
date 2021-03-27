@@ -3,6 +3,7 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import json
 import random
+import queue
 
 dinner = ['炒飯','炒麵','屎','牛肉麵','牛排麵','雞排麵','水餃','咖哩飯','火鍋','鴨肉飯','羊肉燴飯','鍋燒意麵','羊肉米粉',
           '麥當勞','KFC','蚵仔煎','鹹酥雞','鹹水雞','烤肉','滷味','便當']
@@ -11,7 +12,11 @@ drink = ['奶茶','紅茶','綠茶','烏龍茶','青茶','豆漿','米漿','珍�
 json_path = 'C:\\Users\\eric5\\PycharmProjects\\discordbot_tut\\BBMT.json'
 json_path1 = 'C:\\Users\\eric5\\PycharmProjects\\discordbot_tut\\BBMT.json'
 
+dict2 = {}
 dict = {}
+
+dice_big_data = queue.Queue(maxsize=20)
+
 def get_json_data(json_path,name,newbubtea):
     # 获取json里面数据
 
@@ -64,7 +69,7 @@ class React(Cog_Extension):
 
     @commands.command()
     async def 肉便器(self,ctx):
-        pic = discord.File('C:\\Users\\eric5\\PycharmProjects\\discordbot_tut\\pic\\EMT.jpg')
+        pic = discord.File(random.choice(jdata["pct"]))
         await ctx.send(file=pic)
 
     @commands.command()
@@ -90,7 +95,7 @@ class React(Cog_Extension):
                 bbmt_data = json.load(bbmts)
             bbmts.close()
             name = str(ctx.author)
-            the_revised_dict = add_json_data(json_path, name, str(int(bbmt_data[name])+10))
+            the_revised_dict = add_json_data(json_path, name, int(bbmt_data[name])+10)
             write_json_data(the_revised_dict)
 
         await ctx.send(F'**{ctx.author}** 去喝  {drink[rand]}')
@@ -102,7 +107,7 @@ class React(Cog_Extension):
         bbmts.close()
 
         if bbmt_data.__contains__(str(ctx.author)) == False:
-            the_revised_dict = get_json_data(json_path, str(ctx.author), str(100))
+            the_revised_dict = get_json_data(json_path, str(ctx.author), int(100))
             write_json_data(the_revised_dict)
 
         with open('BBMT.json', 'r', encoding='utf8') as bbmts:
@@ -118,8 +123,8 @@ class React(Cog_Extension):
             bbmt_data = json.load(bbmts)
         bbmts.close()
 
-        if(bbmt_data[str(ctx.author)] == "0"):
-            the_revised_dict = get_json_data(json_path, str(ctx.author), str(50))
+        if(bbmt_data[str(ctx.author)] == 0):
+            the_revised_dict = get_json_data(json_path, str(ctx.author), int(50))
             write_json_data(the_revised_dict)
             await ctx.send(F'好啦，再給你 50 杯')
         else:
@@ -137,12 +142,29 @@ class React(Cog_Extension):
             number = int(number)
             if int(number) > int(bbmt_data[str(ctx.author)]):
                 await ctx.send(F'**{ctx.author}** 你珍奶沒了，滾')
+            elif int(number) < 0:
+                new_bubtea = -999999
+                the_revised_dict = get_json_data(json_path, str(ctx.author), int(new_bubtea))
+                write_json_data(the_revised_dict)
+                await ctx.send(F'**{ctx.author}** 還敢輸負的R，你的珍奶變為 {new_bubtea}')
             else:
+                if number == 0:
+                    number = int(bbmt_data[str(ctx.author)])
                 rand = random.randint(1, 6)
                 bubtea = int(bbmt_data[str(ctx.author)])-number
                 pic = discord.File(jdata['dice'][rand-1])
                 await ctx.send(file = pic)
-                if bet == '單' and rand%2 == 1:
+
+                if(dice_big_data.full() == True):
+                    dice_big_data.get()
+                    dice_big_data.put(rand)
+                else:
+                    dice_big_data.put(rand)
+
+                if bet == str(rand):
+                    new_bubtea = int(bubtea + (number * 6))
+                    await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
+                elif bet == '單' and rand%2 == 1:
                     new_bubtea = int(bubtea + (number * 2))
                     await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
                 elif bet == '雙' and rand%2 == 0:
@@ -156,9 +178,37 @@ class React(Cog_Extension):
                     await ctx.send(F'恭喜!! **{ctx.author}** ，你的珍奶變為 {new_bubtea}')
                 else:
                     new_bubtea = int(bubtea)
-                    await ctx.send(F'輸家，滾 ，你的珍奶變為 {new_bubtea}')
-                the_revised_dict = get_json_data(json_path, str(ctx.author), str(new_bubtea))
+                    await ctx.send(F'輸家 **{ctx.author}** ，滾 ，你的珍奶變為 {new_bubtea}')
+                AStr = ""
+                for q in dice_big_data.queue:
+                    AStr += str(q) + "  "
+
+                await ctx.send(AStr)
+
+                the_revised_dict = get_json_data(json_path, str(ctx.author), int(new_bubtea))
                 write_json_data(the_revised_dict)
+
+    @commands.command()
+    async def 排行榜(self,ctx):
+        with open('BBMT.json', 'r', encoding='utf8') as bbmts:
+            bbmt_data = json.load(bbmts)
+            dict2 = bbmt_data
+        bbmts.close()
+
+        dict2 = sorted(dict2.items(), key=lambda x:x[1], reverse = True)
+        lst_key = []
+        lst_value = []
+        for key, value in dict2:
+            lst_key.append(key)
+            lst_value.append(value)
+        #print(lst_key)
+        str = ""
+        await ctx.send(F'排行榜')
+        for i in range (len(lst_key)):
+            #await ctx.send(F'第{i+1}名 : **{lst_key[i]}**， 有 **{lst_value[i]}** 杯')
+            str += (F'第{i+1}名 : **{lst_key[i]}**， 有 **{lst_value[i]}** 杯\n')
+        #print(str)
+        await ctx.send(str)
 
 
 
