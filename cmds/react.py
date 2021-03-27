@@ -78,6 +78,10 @@ class React(Cog_Extension):
         await ctx.send(F'{ctx.author} 根據大數據運算， 你今天可以吃 {dinner[rand]}')
 
     @commands.command()
+    async def 介紹(self,ctx):
+        await ctx.send('一開始先 **[珍珠奶茶** 初始100杯\n用 **[賭骰子 數量 bet** 來賭，可以大，小，單，雙\n沒了可以 **[拜託啦給我喝珍奶** ，會給你50杯')
+
+    @commands.command()
     async def 要喝什麼(self,ctx):
         rand = random.randint(0, len(drink)-1)
         #rand = int(7)
