@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 import json
 import random
+import os
+
 
 with open('setting.json','r',encoding='utf8') as jfile:
     jdata = json.load(jfile)
@@ -23,7 +25,6 @@ async def on_member_join(member):
     await channel.send(F'{member} join!')
     print(F'{member} join!')
 
-
 @bot.event
 async def on_member_remove(member):
     channel = bot.get_channel(jdata['leave_ch'])
@@ -31,22 +32,24 @@ async def on_member_remove(member):
     print(F'{member} leave!')
 
 @bot.command()
-async def ping(ctx):
-    await ctx.send(F'{round(bot.latency * 1000)}(ms)')
+async def load(ctx, extension):
+    bot.load_extension(F'cmds.{extension}')
+    await ctx.send(F'Loaded {extension}')
 
 @bot.command()
-async def 本本抽獎(ctx):
-    H_comic = random.choice(jdata['H_comics'])
-    await ctx.send(F'抽到 {H_comic}')
+async def unload(ctx, extension):
+    bot.unload_extension(F'cmds.{extension}')
+    await ctx.send(F'UnLoaded {extension}')
 
 @bot.command()
-async def haachama(ctx):
-    pic = discord.File('C:\\Users\\eric5\\PycharmProjects\\discordbot_tut\\pic\\haachama.jpg')
-    await ctx.send(file = pic)
+async def reload(ctx, extension):
+    bot.reload_extension(F'cmds.{extension}')
+    await ctx.send(F'ReLoaded {extension}')
 
-@bot.command()
-async def 製粽(ctx):
-    pic = discord.File('C:\\Users\\eric5\\PycharmProjects\\discordbot_tut\\pic\\th1.jpg')
-    await ctx.send(file = pic)
 
-bot.run(jdata['TOKEN'])
+for file_name in os.listdir('./cmds'):
+    if file_name.endswith('.py'):
+        bot.load_extension(F'cmds.{file_name[:-3]}')
+
+if __name__ == "__main__":
+    bot.run(jdata['TOKEN'])
